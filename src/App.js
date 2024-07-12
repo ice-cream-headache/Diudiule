@@ -25,6 +25,12 @@ class App extends React.Component {
     this.lastX = null;
     this.lastY = null;
     this.longP = null;
+    this.cover = document.createElement('div');
+    this.cover.style.position = 'fixed';
+    this.cover.style.top = 0;
+    this.cover.style.left = 0;
+    this.cover.style.right = 0;
+    this.cover.style.bottom = 0;
   }
 
   componentDidMount() {
@@ -117,7 +123,9 @@ class App extends React.Component {
         () => this.longPress(e)
         , 100);
       this.setState({ cur: true });
+      window.addEventListener("mousemove", this.onMouseMove);
     }
+    window.addEventListener("mouseup", this.onMouseUp);
   };
   onMouseUp = e => {
     if (e.button === 2) { //处理鼠标右键事件，显示菜单栏
@@ -136,8 +144,14 @@ class App extends React.Component {
       this.lasttime = 0;
     }
     this.setState({ cur: false });
+    this.cover.remove();
+    window.removeEventListener('mousemove', this.onMouseMove);
+    window.removeEventListener('mouseup', this.onMouseUp);
   };
   onMouseMove = e => {
+    if (!document.body.contains(this.cover)) {
+      document.body.appendChild(this.cover);
+    }
     if (this.moving) {
       if (this.lastX && this.lastY) {
         let dx = e.clientX - this.lastX;
@@ -232,8 +246,6 @@ class App extends React.Component {
         <div
           id='pet'
           onMouseDown={this.onMouseDown}
-          onMouseUp={this.onMouseUp}
-          onMouseMove={this.onMouseMove}
           style={{
             cursor: this.state.cur ? `url(${presscur}),auto` : `url(${normalcur}),auto`,
             position: "relative",
